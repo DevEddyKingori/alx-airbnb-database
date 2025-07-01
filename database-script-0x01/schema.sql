@@ -31,6 +31,21 @@ CREATE TABLE properties (
 
 CREATE INDEX idx_properties_property_id ON properties(property_id);
 
+
+-- Adding a trigger to auto-update 'updated_at'
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_updated_at
+BEFORE UPDATE ON properties
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
 -- ✅ Booking Table
 
 CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'canceled');
